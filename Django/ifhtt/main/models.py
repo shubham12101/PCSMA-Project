@@ -13,7 +13,7 @@ class UserProfile(models.Model):
         db_table = u'user_profile'
 
 class Menu(models.Model):
-	day = models.CharField(max_length=200, unique=True)
+	day = models.CharField(max_length=200)
 	items = models.CharField(max_length=200)
 	time_slot = models.CharField(max_length=200)
 
