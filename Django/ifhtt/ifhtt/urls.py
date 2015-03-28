@@ -9,6 +9,6 @@ urlpatterns = patterns('',
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^user-profiles/', views.UserProfileViewSet.as_view()),
-    url(r'^menu/', views.MenuViewSet.as_view()),
-    url(r'^courses/', views.CourseViewSet.as_view()),
+    url(r'^menu/$', views.MenuViewSet.as_view()),
+    url(r'^courses/$', views.CourseViewSet.as_view()),
 )
