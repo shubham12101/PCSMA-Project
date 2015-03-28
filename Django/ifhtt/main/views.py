@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from main.serializers import UserProfileSerializer, MenuSerializer, CourseSerializer
 from main.models import UserProfile, Menu, Course
+from main.functions import get_time_slot,get_day
 
 # Create your views here.
 class UserProfileViewSet(APIView):
@@ -19,7 +20,18 @@ class MenuViewSet(APIView):
     serializer_class = MenuSerializer
 
     def get(self, request, format=None):
-        serializer = MenuSerializer(self.queryset, many=True)
+    	time_string=request.data.get('time','')
+    	# print time_string
+    	if(time_string==''):
+        	serializer = MenuSerializer(self.queryset, many=True)
+    	else:
+    		time=float(time_string)
+    		time=time/1000
+    		day_of_week= get_day(time)
+    		# print day_of_week 
+    		slot= get_time_slot(time)
+    		# print slot
+    		serializer = MenuSerializer(Menu.objects.get(day=day_of_week,time_slot=slot))
         return Response(serializer.data)
 
 class CourseViewSet(APIView):
@@ -27,8 +39,11 @@ class CourseViewSet(APIView):
     serializer_class = CourseSerializer
 
     def get(self, request, format=None):
-        serializer = CourseSerializer(self.queryset, many=True)
-        return Response(serializer.data)
-
-
+    	course_name=request.data.get('course_name','')
+    	print course_name
+    	if(course_name==''):
+        	serializer = CourseSerializer(self.queryset, many=True)
+    	else:
+    		serializer=CourseSerializer(Course.objects.get(name=course_name))
+       	return Response(serializer.data)
 
