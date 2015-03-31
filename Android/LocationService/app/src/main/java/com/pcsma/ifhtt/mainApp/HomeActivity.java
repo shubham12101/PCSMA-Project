@@ -111,8 +111,9 @@ public class HomeActivity extends ActionBarActivity implements OnGetTaskListener
             try {
                 JSONObject jsonObject = new JSONObject(message);
                 String menuItems = jsonObject.getString("items");
+                String timeSlot = jsonObject.getString("time_slot");
                 Log.d(TAG, menuItems);
-//                makeNotification(menuItems);
+                makeNotification(timeSlot,menuItems);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -127,12 +128,12 @@ public class HomeActivity extends ActionBarActivity implements OnGetTaskListener
         startActivity(i);
     }
 
-    public void makeNotification(String menuItems)
+    public void makeNotification(String timeSlot,String menuItems)
     {
         long[] pattern = { 0, 200, -1 };
 //        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.iiitd_logo)
-                .setContentTitle("Mess Menu").setContentText(menuItems).setVibrate(pattern).setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
+                .setContentTitle("Mess Menu for "+timeSlot).setContentText(menuItems).setVibrate(pattern).setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
         int notifId = 001;
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(notifId,notifBuilder.build());
