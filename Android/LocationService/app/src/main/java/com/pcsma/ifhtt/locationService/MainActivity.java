@@ -1,12 +1,23 @@
 package com.pcsma.ifhtt.locationService;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.pcsma.ifhtt.R;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -16,33 +27,24 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.pcsma.ifhtt.R;
-
-import android.support.v7.app.ActionBarActivity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.TextView;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends ActionBarActivity {
 
 	private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 	public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";
+    public static final String IFHTT_REG_ID = "registration_id_ifhtt";
     private static final String PROPERTY_APP_VERSION = "appVersion";
 	
 	String SENDER_ID = "76480130894";
+    String SENDER_ID_IFHTT="1061491278864";
 	
 	static final String TAG = "GCMPush";
 
@@ -52,13 +54,13 @@ public class MainActivity extends ActionBarActivity {
     SharedPreferences prefs;
     Context context;
 
-    String regid;
+    String regid,regid_ifhtt;
 	String address;
     String uid;
 
     Button but1, histBut;
-  
-	@Override
+
+    @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
@@ -103,12 +105,19 @@ public class MainActivity extends ActionBarActivity {
 
 					   if (checkPlayServices()) {
 				            gcm = GoogleCloudMessaging.getInstance(context);
-				            regid = getRegistrationId(context);
+
+                           regid_ifhtt=getRegistrationId(context,IFHTT_REG_ID);
+                           if (regid_ifhtt.isEmpty()) {
+                               new registerInIFHTTBackground().execute();
+                           }
+
+				            regid = getRegistrationId(context,PROPERTY_REG_ID);
 
 				            if (regid.isEmpty()) {
 				                new registerInBackground().execute();
 				            }
-				            sendRegistrationIdToBackend();
+
+                           sendRegistrationIdToBackend();
 				        } else {
 				            Log.i(TAG, "No valid Google Play Services APK found.");
 				        }
@@ -188,9 +197,9 @@ public class MainActivity extends ActionBarActivity {
 	    return true;
 	}
 	
-	private String getRegistrationId(Context context) {
+	private String getRegistrationId(Context context,String PROPERTY) {
 	    final SharedPreferences prefs = getGCMPreferences(context);
-	    String registrationId = prefs.getString(PROPERTY_REG_ID, "");
+	    String registrationId = prefs.getString(PROPERTY, "");
 	    if (registrationId.isEmpty()) {
 	        Log.i(TAG, "Registration not found.");
 	        return "";
@@ -253,7 +262,7 @@ public class MainActivity extends ActionBarActivity {
 	                // message using the 'from' address in the message.
 
 	                // Persist the regID - no need to register again.
-	                storeRegistrationId(context, regid);
+	                storeRegistrationId(context, regid,PROPERTY_REG_ID);
 	                
 	                // You should send the registration ID to your server over HTTP,
 	                // so it can use GCM/HTTP or CCS to send messages to your app.
@@ -272,9 +281,50 @@ public class MainActivity extends ActionBarActivity {
 	        }
 	        @Override
 	        protected void onPostExecute(String msg) {
-	            mDisplay.append(msg + "\n");
+//	            mDisplay.append(msg + "\n");
+                Log.v(TAG,msg);
 	        }
 	}
+
+    private class registerInIFHTTBackground extends AsyncTask<Void, Void, String> {
+        @Override
+        protected String doInBackground(Void... params) {
+            String msg = "";
+            try {
+                if (gcm == null) {
+                    gcm = GoogleCloudMessaging.getInstance(context);
+                }
+                regid_ifhtt = gcm.register(SENDER_ID_IFHTT);
+                msg = "Device registered with IFHTT, registration ID=" + regid_ifhtt;
+
+                // For this demo: we don't need to send it because the device
+                // will send upstream messages to a server that echo back the
+                // message using the 'from' address in the message.
+
+                // Persist the regID - no need to register again.
+                storeRegistrationId(context, regid_ifhtt,IFHTT_REG_ID);
+
+                // You should send the registration ID to your server over HTTP,
+                // so it can use GCM/HTTP or CCS to send messages to your app.
+                // The request to your server should be authenticated if your app
+                // is using accounts.
+                sendRegistrationIdToIFHTTBackend();
+
+
+            } catch (IOException ex) {
+                msg = "Error :" + ex.getMessage();
+                // If there is an error, don't just keep trying to register.
+                // Require the user to click a button again, or perform
+                // exponential back-off.
+            }
+            return msg;
+        }
+        @Override
+        protected void onPostExecute(String msg) {
+//            mDisplay.append(msg + "\n");
+            Log.v(TAG,msg);
+        }
+    }
 	
 	/**
 	 * Sends the registration ID to your server over HTTP, so it can use GCM/HTTP
@@ -290,6 +340,12 @@ public class MainActivity extends ActionBarActivity {
 	    String type = "register";
 		new AndroidHTTPGet().execute(url,type);
 	}
+
+    private void sendRegistrationIdToIFHTTBackend() {
+        final SharedPreferences prefs = getGCMPreferences(context);
+        String registrationId = prefs.getString(IFHTT_REG_ID, "");
+
+    }
 	
 	/**
 	 * Stores the registration ID and app versionCode in the application's
@@ -298,12 +354,12 @@ public class MainActivity extends ActionBarActivity {
 	 * @param context application's context.
 	 * @param regId registration ID
 	 */
-	private void storeRegistrationId(Context context, String regId) {
+	private void storeRegistrationId(Context context, String regId,String REG_ID) {
 	    final SharedPreferences prefs = getGCMPreferences(context);
 	    int appVersion = getAppVersion(context);
 	    Log.i(TAG, "Saving regId on app version " + appVersion);
 	    SharedPreferences.Editor editor = prefs.edit();
-	    editor.putString(PROPERTY_REG_ID, regId);
+	    editor.putString(REG_ID, regId);
 	    editor.putInt(PROPERTY_APP_VERSION, appVersion);
 	    editor.commit();
 	}

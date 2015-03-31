@@ -38,7 +38,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'main',
     'rest_framework',
+    'gcm',
 )
+
+GCM_APIKEY = "AIzaSyAasGXTnU6l4r8MxH_11GW5-YMTXjYtuvw"
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
