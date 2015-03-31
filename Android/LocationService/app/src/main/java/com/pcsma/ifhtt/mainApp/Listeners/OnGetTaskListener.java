@@ -5,5 +5,5 @@ package com.pcsma.ifhtt.mainApp.Listeners;
  */
 public interface OnGetTaskListener {
 
-    void onTaskCompleted(String message);
+    void onTaskCompleted(String message, String type);
 }
