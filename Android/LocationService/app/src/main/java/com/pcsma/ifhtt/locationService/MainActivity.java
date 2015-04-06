@@ -357,7 +357,7 @@ public class MainActivity extends ActionBarActivity {
 	private void storeRegistrationId(Context context, String regId,String REG_ID) {
 	    final SharedPreferences prefs = getGCMPreferences(context);
 	    int appVersion = getAppVersion(context);
-	    Log.i(TAG, "Saving regId on app version " + appVersion);
+	    Log.i(TAG, "Saving regId on app version " + appVersion+" "+REG_ID+" "+regId);
 	    SharedPreferences.Editor editor = prefs.edit();
 	    editor.putString(REG_ID, regId);
 	    editor.putInt(PROPERTY_APP_VERSION, appVersion);
