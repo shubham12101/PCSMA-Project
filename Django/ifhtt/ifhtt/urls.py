@@ -11,4 +11,5 @@ urlpatterns = patterns('',
     url(r'^user-profiles/', views.UserProfileViewSet.as_view()),
     url(r'^menu/$', views.MenuViewSet.as_view()),
     url(r'^courses/$', views.CourseViewSet.as_view()),
+    url(r'^messages/$', views.MessageViewSet.as_view()),
 )

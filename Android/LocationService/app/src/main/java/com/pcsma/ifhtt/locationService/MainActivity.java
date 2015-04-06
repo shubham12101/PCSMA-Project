@@ -338,6 +338,7 @@ public class MainActivity extends ActionBarActivity implements OnGCMRegisterList
 		new AndroidHTTPGet().execute(url,type);
 	}
 
+
     private void sendRegistrationIdToIFHTTBackend() {
         String email_id="vedant12118@iiitd.ac.in";
         final SharedPreferences prefs = getGCMPreferences(context);
