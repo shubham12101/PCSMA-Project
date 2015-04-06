@@ -7,6 +7,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +19,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.pcsma.ifhtt.R;
+import com.pcsma.ifhtt.mainApp.Listeners.OnGCMRegisterListener;
+import com.pcsma.ifhtt.mainApp.Tasks.GCMRegisterTask;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -35,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements OnGCMRegisterListener{
 
 	private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 	public static final String EXTRA_MESSAGE = "message";
@@ -239,8 +242,13 @@ public class MainActivity extends ActionBarActivity {
 	        throw new RuntimeException("Could not get package name: " + e);
 	    }
 	}
-	
-	/**
+
+    @Override
+    public void onTaskCompleted(String message) {
+        Log.v(TAG,"GCM registered successfully");
+    }
+
+    /**
 	 * Registers the application with GCM servers asynchronously.
 	 * <p>
 	 * Stores the registration ID and app versionCode in the application's
@@ -297,25 +305,14 @@ public class MainActivity extends ActionBarActivity {
                 regid_ifhtt = gcm.register(SENDER_ID_IFHTT);
                 msg = "Device registered with IFHTT, registration ID=" + regid_ifhtt;
 
-                // For this demo: we don't need to send it because the device
-                // will send upstream messages to a server that echo back the
-                // message using the 'from' address in the message.
-
                 // Persist the regID - no need to register again.
                 storeRegistrationId(context, regid_ifhtt,IFHTT_REG_ID);
 
-                // You should send the registration ID to your server over HTTP,
-                // so it can use GCM/HTTP or CCS to send messages to your app.
-                // The request to your server should be authenticated if your app
-                // is using accounts.
                 sendRegistrationIdToIFHTTBackend();
 
 
             } catch (IOException ex) {
                 msg = "Error :" + ex.getMessage();
-                // If there is an error, don't just keep trying to register.
-                // Require the user to click a button again, or perform
-                // exponential back-off.
             }
             return msg;
         }
@@ -342,9 +339,12 @@ public class MainActivity extends ActionBarActivity {
 	}
 
     private void sendRegistrationIdToIFHTTBackend() {
+        String email_id="vedant12118@iiitd.ac.in";
         final SharedPreferences prefs = getGCMPreferences(context);
         String registrationId = prefs.getString(IFHTT_REG_ID, "");
-
+        String android_id = Settings.Secure.getString(this.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+        (new GCMRegisterTask(MainActivity.this,registrationId,android_id,email_id,this)).execute();
     }
 	
 	/**
