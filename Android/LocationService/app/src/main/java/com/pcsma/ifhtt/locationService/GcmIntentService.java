@@ -44,7 +44,11 @@ public class GcmIntentService extends IntentService {
                     MESSAGE_TYPE_MESSAGE.equals(messageType)) {
             	String myfloor;
             	String rest = new String();
-            	if(intent.getExtras().getString("floor").equals("0")){
+
+                Log.v(TAG,"GCM received "+intent.getExtras().getString("msg")
+                        +" "+intent.getExtras().getString("collapse_key"));
+
+                if(intent.getExtras().getString("floor").equals("0")){
             		myfloor = "Ground";
             	}
             	else{

@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from main.serializers import UserProfileSerializer, MenuSerializer, CourseSerializer
 from main.models import UserProfile, Menu, Course
 from main.functions import get_time_slot,get_day
+from gcm.models import get_device_model
 
 # Create your views here.
 class UserProfileViewSet(APIView):
@@ -53,4 +54,12 @@ class CourseViewSet(APIView):
     	else:
     		serializer=CourseSerializer(Course.objects.get(name=course_name))
        	return Response(serializer.data)
+
+class MessageViewSet(APIView):
+
+    def post(self, request, format=None):
+        Device = get_device_model()
+        rcvr_device = Device.objects.get(name='vedant12118@iiitd.ac.in')
+        rcvr_device.send_message('django test message',collapse_key='inform')
+        return HttpResponse(status=200)
 
