@@ -14,14 +14,14 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.pcsma.ifhtt.R;
+import com.pcsma.ifhtt.mainApp.Common;
+import com.pcsma.ifhtt.mainApp.HomeActivity;
 import com.pcsma.ifhtt.mainApp.Listeners.OnGCMRegisterListener;
 import com.pcsma.ifhtt.mainApp.Tasks.GCMRegisterTask;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -45,6 +45,8 @@ public class MainActivity extends ActionBarActivity implements OnGCMRegisterList
     public static final String PROPERTY_REG_ID = "registration_id";
     public static final String IFHTT_REG_ID = "registration_id_ifhtt";
     private static final String PROPERTY_APP_VERSION = "appVersion";
+    private static SharedPreferences sharedPreferences;
+    private static final String launch = "firstLaunch";
 	
 	String SENDER_ID = "76480130894";
     String SENDER_ID_IFHTT="1061491278864";
@@ -79,6 +81,19 @@ public class MainActivity extends ActionBarActivity implements OnGCMRegisterList
 		//String url = "https://192.168.207.129:9000/uid?mac=" + address +"&token=75bde082336602fde7bb121058d01449ea5b3edb2d9f3cd924882a31f0235dde";
 		//new AndroidHTTPGet().execute(url,type);
 		final SharedPreferences sprefs = getSharedPreferences("Login", Context.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(Common.sprefs,Context.MODE_PRIVATE);
+        if(!(sharedPreferences.getBoolean(launch,true)))
+        {
+            Intent intent = new Intent(this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+        }
+        else
+        {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(launch,false);
+            editor.commit();
+        }
 	    Boolean rStart = sprefs.getBoolean("is_start", false);
 	    if(rStart==true){
 	    	but1.setText(R.string._stop);
@@ -113,6 +128,8 @@ public class MainActivity extends ActionBarActivity implements OnGCMRegisterList
                            if (regid_ifhtt.isEmpty()) {
                                new registerInIFHTTBackground().execute();
                            }
+                           else
+                                Log.d(TAG,"regid_ifhtt:"+regid_ifhtt);
 
 				            regid = getRegistrationId(context,PROPERTY_REG_ID);
 
@@ -297,6 +314,7 @@ public class MainActivity extends ActionBarActivity implements OnGCMRegisterList
     private class registerInIFHTTBackground extends AsyncTask<Void, Void, String> {
         @Override
         protected String doInBackground(Void... params) {
+            Log.d(TAG,"ifhtt registration task");
             String msg = "";
             try {
                 if (gcm == null) {
