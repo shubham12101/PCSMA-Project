@@ -29,8 +29,11 @@ import com.pcsma.ifhtt.locationService.DBAdapter;
 import com.pcsma.ifhtt.locationService.SNMPHttpsClient;
 import com.pcsma.ifhtt.mainApp.Common;
 import com.pcsma.ifhtt.mainApp.HomeActivity;
+import com.pcsma.ifhtt.mainApp.Listeners.OnAuthTaskListener;
 import com.pcsma.ifhtt.mainApp.Listeners.OnGCMRegisterListener;
 import com.pcsma.ifhtt.mainApp.Listeners.OnGetUsernameListener;
+import com.pcsma.ifhtt.mainApp.Listeners.OnRegisterUserTaskListener;
+import com.pcsma.ifhtt.mainApp.Tasks.AuthTask;
 import com.pcsma.ifhtt.mainApp.Tasks.GCMRegisterTask;
 import com.pcsma.ifhtt.mainApp.Tasks.GetUsernameTask;
 
@@ -50,7 +53,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MainActivity extends ActionBarActivity implements OnGCMRegisterListener,OnGetUsernameListener{
+public class MainActivity extends ActionBarActivity
+        implements OnGCMRegisterListener,OnGetUsernameListener,OnAuthTaskListener,OnRegisterUserTaskListener{
 
 	private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     static final int REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR = 1001;
@@ -63,7 +67,8 @@ public class MainActivity extends ActionBarActivity implements OnGCMRegisterList
     private static final String launch = "firstLaunch";
     String mEmail; // Received from newChooseAccountIntent(); passed to getToken()
     private static final String SCOPE =
-            "oauth2:https://www.googleapis.com/auth/userinfo.profile";
+            "oauth2:https://www.googleapis.com/auth/userinfo.profile " +
+                    "https://www.googleapis.com/auth/userinfo.email";
 
 
 
@@ -287,7 +292,19 @@ public class MainActivity extends ActionBarActivity implements OnGCMRegisterList
     @Override
     public void onSignInTaskCompleted(String token) {
         Log.v(TAG,token);
+        (new AuthTask(this,token,this)).execute();
     }
+
+    @Override
+    public void OnAuthTaskCompleted(String authToken, String username) {
+//        (new RegisterUserTask(mEmail,authToken,this)).execute();
+    }
+
+    @Override
+    public void OnRegistrationComplete(String msg) {
+        Log.v(TAG,msg);
+    }
+
 
     /**
 	 * Registers the application with GCM servers asynchronously.

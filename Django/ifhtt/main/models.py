@@ -8,14 +8,6 @@ from gcm.models import AbstractDevice
 class UserDevice(AbstractDevice):
     pass
 
-class UserProfile(models.Model):
-    username = models.CharField(max_length=200)
-    gcm_id = models.CharField(max_length=200, unique=True)
-    auth_user=models.ForeignKey(User,null=True)
-
-    class Meta:
-        db_table = u'user_profile'
-
 class Menu(models.Model):
 	day = models.CharField(max_length=200)
 	items = models.CharField(max_length=200)

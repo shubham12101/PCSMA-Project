@@ -8,11 +8,13 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from rest_framework.renderers import JSONRenderer
-from main.serializers import UserProfileSerializer, MenuSerializer, CourseSerializer
-from main.models import UserProfile, Menu, Course
+from main.serializers import MenuSerializer, CourseSerializer
+from main.models import Menu, Course
 from main.functions import get_time_slot,get_day
 from gcm.models import get_device_model
 from social.apps.django_app.utils import psa
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 # Create your views here.
 class ObtainAuthToken(APIView):
@@ -64,14 +66,11 @@ def register_by_access_token(request, backend):
 def get_authorization_header(request):
     return request.META['HTTP_AUTHORIZATION']
 
+def save_auth_user(userProfile,authUser):
+    if userProfile.auth_user is None:
+        userProfile.auth_user=authUser
+        userProfile.save()
 
-class UserProfileViewSet(APIView):
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
-
-    def get(self, request, format=None):
-        serializer = UserProfileSerializer(self.queryset, many=True)
-        return Response(serializer.data)
 
 class MenuViewSet(APIView):
     queryset = Menu.objects.all()

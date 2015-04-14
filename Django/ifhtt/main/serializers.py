@@ -1,10 +1,5 @@
-from main.models import UserProfile,Menu, Course
+from main.models import Menu, Course
 from rest_framework import serializers
-
-class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-    	model = UserProfile
-        fields =('gcm_id','username')
 
 class MenuSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
