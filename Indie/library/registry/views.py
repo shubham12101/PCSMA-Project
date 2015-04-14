@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from registry.serializers import BookSerializer
 from registry.models import Book
+
 # Create your views here.
 class BookViewSet(APIView):
     queryset = Book.objects.all()
@@ -18,6 +19,6 @@ class BookViewSet(APIView):
     	if(issued_by==''):
         	serializer = BookSerializer(self.queryset, many=True)
     	else:
-    		serializer=BookSerializer(Book.objects.get(issued_by=issued_by))
+    		serializer=BookSerializer(Book.objects.get(issued_by=issued_by),many=True)
        	return Response(serializer.data)
 
