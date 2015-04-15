@@ -23,16 +23,18 @@ public class DatabaseContract {
         public static final String START_TIME = "Start_Time";
         public static final String END_TIME = "End_Time";
         public static final String ACTION="Action";
-        public static final String OPTION="Option";
+        public static final String OPTION_1="Option_1";
+        public static final String OPTION_2="Option_2";
 
         public static final String SQL_CREATE_ENTRIES =
                 "CREATE TABLE " + RecipeEntry.TABLE_NAME + " (" +
                         RecipeEntry._ID + " INTEGER PRIMARY KEY," +
                         RecipeEntry.LOCATION + TEXT_TYPE + COMMA_SEP +
-                        RecipeEntry.START_TIME + REAL_TYPE + COMMA_SEP +
-                        RecipeEntry.END_TIME + REAL_TYPE + COMMA_SEP +
+                        RecipeEntry.START_TIME + TEXT_TYPE + COMMA_SEP +
+                        RecipeEntry.END_TIME + TEXT_TYPE + COMMA_SEP +
                         RecipeEntry.ACTION + TEXT_TYPE + COMMA_SEP +
-                        RecipeEntry.OPTION +TEXT_TYPE +
+                        RecipeEntry.OPTION_1 +TEXT_TYPE + COMMA_SEP +
+                        RecipeEntry.OPTION_2 +TEXT_TYPE +
                         " )";
         public static final String SQL_DELETE_ENTRIES =
                 "DROP TABLE IF EXISTS " + RecipeEntry.TABLE_NAME;

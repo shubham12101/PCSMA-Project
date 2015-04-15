@@ -125,9 +125,19 @@ class MessageViewSet(APIView):
         Device = get_device_model()
         user=request.user
         msg_str= user.email+": "+request.data.get('msg')
-        print msg_str
+        # print msg_str
         rcvr_device = Device.objects.get(name=request.data.get('to'))
         rcvr_device.send_message(msg_str,collapse_key='inform')
+        return HttpResponse(status=200)
+
+class DemoLocationViewSet(APIView):
+
+    def post(self, request, format=None):
+        Device = get_device_model()
+        msg_str= request.data.get('msg')
+        print msg_str
+        rcvr_device = Device.objects.get(name=request.data.get('to'))
+        rcvr_device.send_message(msg_str,collapse_key='demo_location')
         return HttpResponse(status=200)
 
 class LibraryViewSet(APIView):

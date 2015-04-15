@@ -27,10 +27,11 @@ public class GetTask extends AsyncTask<Void,Void,String> {
 
     private static final String TAG ="GetTask" ;
     Context context;
-    String URL, paramKey, paramValue, type;
+    String URL, paramKey, paramValue, type,authToken;
     OnGetTaskListener listener;
 
-    public GetTask(Context context, String URL, String paramKey, String paramValue, OnGetTaskListener listener, String type)
+    public GetTask(Context context, String URL, String paramKey, String paramValue,
+                   OnGetTaskListener listener, String type,String authToken)
     {
         this.context=context;
         this.URL = URL;
@@ -38,6 +39,7 @@ public class GetTask extends AsyncTask<Void,Void,String> {
         this.paramValue = paramValue;
         this.listener=listener;
         this.type = type;
+        this.authToken=authToken;
     }
 
     @Override
@@ -70,7 +72,7 @@ public class GetTask extends AsyncTask<Void,Void,String> {
 //        Log.v(TAG,"Get movies");
 
         HttpGet httpGet = new HttpGet(URL+"?"+paramString);
-//        httpGet.setHeader("Authorization","Token "+authToken);
+        httpGet.setHeader("Authorization","Token "+authToken);
 
 //        HttpParams params=httpGet.getParams();
 //        params.setParameter(paramKey,paramValue);
