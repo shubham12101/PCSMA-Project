@@ -13,4 +13,11 @@ public class Common {
     public static final String LIBRARY_API = URL+"library/";
     public static final String GCM_REG_API = URL+"gcm/v1/device/register/";
     public static final String sprefs = "MyPrefs";
+    public static final String ACTION_SILENT = "Silent";
+    public static final String ACTION_VIBRATE = "Vibrate";
+    public static final String ACTION_COURSE = "Course";
+    public static final String ACTION_MESS_MENU = "MessMenu";
+    public static final String ACTION_MAX_POP = "MaxPopulation";
+    public static final String ACTION_MIN_POP = "MinPopulation";
+    public static final String ACTION_MESSAGE = "Message";
 }

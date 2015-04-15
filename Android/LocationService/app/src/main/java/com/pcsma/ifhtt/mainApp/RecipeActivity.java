@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TimePicker;
 import com.pcsma.ifhtt.R;
 import com.pcsma.ifhtt.mainApp.Listeners.OnLocationReceivedListener;
@@ -29,15 +30,19 @@ public class RecipeActivity extends ActionBarActivity implements OnLocationRecei
     String startTimeString,endTimeString;
     Button locationButton;
     Button startTimeButton;
-    Button endTimeButton,actionButton;
+    Button endTimeButton,actionButton,okButton;
     GetLocationTask getLocationTask;
     List<LocationObject> locationObjectList;
     TimePickerDialog timePickerDialogStart;
     TimePickerDialog timePickerDialogEnd;
+    EditText option1EditText, option2EditText;
     private static String TAG;
     int hourStart, minStart, hourEnd, minEnd;
     Calendar calendarStart,calendarEnd;
     SimpleDateFormat simpleDateFormatStart,simpleDateFormatEnd;
+    ActionObject actionObject;
+    String recipeLocation;
+    RecipeActions recipeActions;
 
     public RecipeActivity()
     {
@@ -48,6 +53,7 @@ public class RecipeActivity extends ActionBarActivity implements OnLocationRecei
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe);
+        recipeActions = new RecipeActions(RecipeActivity.this);
         final SharedPreferences appPreferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         String token = appPreferences.getString("token",null);
         if(token!=null)
@@ -64,6 +70,11 @@ public class RecipeActivity extends ActionBarActivity implements OnLocationRecei
         startTimeButton = (Button) findViewById(R.id.button_time_start);
         endTimeButton = (Button) findViewById(R.id.button_time_end);
         actionButton = (Button) findViewById(R.id.button_set_action);
+        okButton = (Button) findViewById(R.id.button_okay);
+        option1EditText = (EditText) findViewById(R.id.editText_option1);
+        option2EditText = (EditText) findViewById(R.id.editText_option2);
+        option1EditText.setVisibility(View.GONE);
+        option2EditText.setVisibility(View.GONE);
         timePickerDialogStart = new TimePickerDialog(this,timeSetListenerStart,hourStart,minStart,true);
         timePickerDialogEnd = new TimePickerDialog(this,timeSetListenerEnd,hourEnd,minEnd,true);
         locationButton.setOnClickListener(new View.OnClickListener() {
@@ -87,7 +98,13 @@ public class RecipeActivity extends ActionBarActivity implements OnLocationRecei
         actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                makeActionDialog();
+            }
+        });
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                
             }
         });
     }
@@ -163,11 +180,40 @@ public class RecipeActivity extends ActionBarActivity implements OnLocationRecei
         builder.setAdapter(arrayAdapter,new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
+                if(which==2)
+                {
+                    option1EditText.setVisibility(View.VISIBLE);
+                    option1EditText.setHint("Enter the Course Name");
+                }
+                else if(which==7)
+                {
+                    option1EditText.setVisibility(View.VISIBLE);
+                    option2EditText.setVisibility(View.VISIBLE);
+                    option1EditText.setHint("Enter the email of the receiver");
+                    option2EditText.setHint("Enter the message to be received");
+                }
+                else
+                {
+                    option1EditText.setVisibility(View.GONE);
+                    option2EditText.setVisibility(View.GONE);
+                }
             }
         });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    public void makeActionObject(int n)
+    {
+        Log.d(TAG,"position: "+n);
+        switch (n)
+        {
+            case 0:
+                recipeActions.phoneSilent();
+                break;
+            case 1:
+                recipeActions.phoneVibrate();
+        }
     }
 
     public void makeListDialog(List<LocationObject> locList)
@@ -183,6 +229,7 @@ public class RecipeActivity extends ActionBarActivity implements OnLocationRecei
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 locationButton.setText(arrayAdapter.getItem(which).toString());
+                recipeLocation = arrayAdapter.getItem(which).toString();
             }
         });
         AlertDialog alertDialog = builder.create();
