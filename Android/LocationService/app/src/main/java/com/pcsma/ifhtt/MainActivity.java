@@ -286,7 +286,8 @@ public class MainActivity extends ActionBarActivity
     @Override
     public void onTaskCompleted(String message) {
         Log.v(TAG,"GCM registered successfully");
-
+        Intent intent = new Intent(this, HomeActivity.class);
+        startActivity(intent);
     }
 
     @Override

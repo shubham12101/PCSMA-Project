@@ -25,6 +25,8 @@ public class HomeActivity extends ActionBarActivity implements OnGetTaskListener
     Button vibrateButton;
     Button courseButton;
     Button menuButton;
+    Button recipeButton;
+
 
     private RecipeActions recipeActions = new RecipeActions(HomeActivity.this);
 
@@ -37,6 +39,7 @@ public class HomeActivity extends ActionBarActivity implements OnGetTaskListener
         vibrateButton = (Button) findViewById(R.id.button_vibrate);
         courseButton = (Button) findViewById(R.id.button_course);
         menuButton = (Button) findViewById(R.id.button_menu);
+        recipeButton = (Button) findViewById(R.id.button_recipe);
 
         silentButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,6 +67,13 @@ public class HomeActivity extends ActionBarActivity implements OnGetTaskListener
             public void onClick(View v) {
                 recipeActions.openMenuNotif(HomeActivity.this);
 //                makeNotification("Demo");
+            }
+        });
+        recipeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this,RecipeActivity.class);
+                startActivity(intent);
             }
         });
     }
