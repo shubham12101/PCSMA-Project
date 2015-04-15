@@ -9,5 +9,6 @@
     <string name="_stop">Stop Service</string>
     <string name="title_activity_list_view">ListViewActivity</string>
     <string name="title_activity_home">HomeActivity</string>
+    <string name="title_activity_recipe_list">RecipeListActivity</string>
 
 </resources>

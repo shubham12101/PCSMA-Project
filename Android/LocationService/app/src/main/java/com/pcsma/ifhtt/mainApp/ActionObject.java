@@ -6,18 +6,20 @@ package com.pcsma.ifhtt.mainApp;
 public class ActionObject {
 
     private String location;
-    private long startTime;
-    private long endTime;
+    private String startTime;
+    private String endTime;
     private String action;
-    private String option = "";
+    private String option_1 = "";
+    private String option_2 = "";
 
-    public ActionObject(String loc, long sTime, long eTime, String action, String opt)
+    public ActionObject(String loc, String sTime, String eTime, String action, String opt1,String opt2)
     {
         this.location = loc;
         this.startTime = sTime;
         this.endTime = eTime;
         this.action = action;
-        this.option = opt;
+        this.option_1 = opt1;
+        this.option_2 = opt2;
     }
 
     public String getLocation()
@@ -25,12 +27,12 @@ public class ActionObject {
         return location;
     }
 
-    public long getStartTime()
+    public String getStartTime()
     {
         return startTime;
     }
 
-    public long getEndTime()
+    public String getEndTime()
     {
         return endTime;
     }
@@ -40,9 +42,14 @@ public class ActionObject {
         return action;
     }
 
-    public String getOption()
+    public String getOption1()
     {
-        return option;
+        return option_1;
+    }
+
+    public String getOption2()
+    {
+        return option_2;
     }
 
     public void setLocation(String loc)
@@ -50,12 +57,12 @@ public class ActionObject {
         this.location = loc;
     }
 
-    public void setStartTime(long sTime)
+    public void setStartTime(String sTime)
     {
         this.startTime = sTime;
     }
 
-    public void setEndTime(long eTime)
+    public void setEndTime(String eTime)
     {
         this.endTime = eTime;
     }
@@ -65,10 +72,13 @@ public class ActionObject {
         this.action = action;
     }
 
-    public void setOption(String opt)
+    public void setOption1(String opt)
     {
-        this.option = opt;
+        this.option_1 = opt;
     }
 
-
+    public void setOption2(String opt)
+    {
+        this.option_2 = opt;
+    }
 }
