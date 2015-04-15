@@ -131,7 +131,7 @@ class LibraryViewSet(APIView):
             url_string=library_url+book_api+"?issued_by="+issued_by
             data=urllib2.urlopen(url_string).read()
             print data
-            return Response(serializer.data)
+            return HttpResponse(data,content_type="application/json")
 
               
 

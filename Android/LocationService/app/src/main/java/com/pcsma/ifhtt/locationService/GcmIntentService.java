@@ -47,10 +47,10 @@ public class GcmIntentService extends IntentService {
                 if(intent.getExtras().getString("collapse_key")!=null){
                     Log.v(TAG,"GCM received "+intent.getExtras().getString("msg")
                             +" "+intent.getExtras().getString("collapse_key"));
-                    sendNotification(intent.getExtras().getString("msg"));
-                }
-                else{
-                    handleLocNotif(intent,extras);
+                    if(intent.getExtras().getString("collapse_key").equals("inform"))
+                        sendNotification(intent.getExtras().getString("msg"));
+                    else
+                        handleLocNotif(intent,extras);
                 }
             }
         }

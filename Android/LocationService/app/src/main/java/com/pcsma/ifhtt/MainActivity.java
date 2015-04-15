@@ -32,7 +32,6 @@ import com.pcsma.ifhtt.mainApp.HomeActivity;
 import com.pcsma.ifhtt.mainApp.Listeners.OnAuthTaskListener;
 import com.pcsma.ifhtt.mainApp.Listeners.OnGCMRegisterListener;
 import com.pcsma.ifhtt.mainApp.Listeners.OnGetUsernameListener;
-import com.pcsma.ifhtt.mainApp.Listeners.OnRegisterUserTaskListener;
 import com.pcsma.ifhtt.mainApp.Tasks.AuthTask;
 import com.pcsma.ifhtt.mainApp.Tasks.GCMRegisterTask;
 import com.pcsma.ifhtt.mainApp.Tasks.GetUsernameTask;
@@ -54,7 +53,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends ActionBarActivity
-        implements OnGCMRegisterListener,OnGetUsernameListener,OnAuthTaskListener,OnRegisterUserTaskListener{
+        implements OnGCMRegisterListener,OnGetUsernameListener,OnAuthTaskListener{
 
 	private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     static final int REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR = 1001;
@@ -287,6 +286,7 @@ public class MainActivity extends ActionBarActivity
     @Override
     public void onTaskCompleted(String message) {
         Log.v(TAG,"GCM registered successfully");
+
     }
 
     @Override
@@ -298,12 +298,18 @@ public class MainActivity extends ActionBarActivity
     @Override
     public void OnAuthTaskCompleted(String authToken, String username) {
 //        (new RegisterUserTask(mEmail,authToken,this)).execute();
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(launch,false);
+        editor.commit();
+        Intent intent = new Intent(this, HomeActivity.class);
+        startActivity(intent);
+        finish();
     }
-
-    @Override
-    public void OnRegistrationComplete(String msg) {
-        Log.v(TAG,msg);
-    }
+//
+//    @Override
+//    public void OnRegistrationComplete(String msg) {
+//        Log.v(TAG,msg);
+//    }
 
 
     /**
