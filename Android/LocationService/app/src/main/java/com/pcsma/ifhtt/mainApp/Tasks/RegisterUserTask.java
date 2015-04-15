@@ -75,7 +75,7 @@ public class RegisterUserTask extends AsyncTask<Void,String,String> {
         } catch (IOException e) {
             // Log exception
             e.printStackTrace();
-        } catch (JSONException  e){
+        } catch (JSONException e){
             e.printStackTrace();
         }
         return msg;
