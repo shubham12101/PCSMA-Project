@@ -1,4 +1,5 @@
 import urllib2
+import json
 from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework import status,viewsets
@@ -8,15 +9,25 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from rest_framework.renderers import JSONRenderer
-from main.serializers import MenuSerializer, CourseSerializer
+from main.serializers import MenuSerializer, CourseSerializer,UserSerializer
 from main.models import Menu, Course
-from main.functions import get_time_slot,get_day
+from main.functions import get_time_slot,get_day, get_location, get_max_ppl, get_min_ppl
 from gcm.models import get_device_model
 from social.apps.django_app.utils import psa
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.contrib.auth.models import User
 
 # Create your views here.
+class UserViewSet(APIView):
+    queryset = User.objects.all().exclude(username="chiefUser")
+    serializer_class = UserSerializer
+
+    def get(self, request, format=None):
+        serializer = UserSerializer(self.queryset, many=True)
+        return Response(serializer.data)
+
+
 class ObtainAuthToken(APIView):
     throttle_classes = ()
     permission_classes = ()
@@ -28,6 +39,7 @@ class ObtainAuthToken(APIView):
 
     # Accept backend as a parameter and 'auth' for a login / pass
     def post(self, request, backend):
+        # print "in post"
         if backend == 'auth':
             serializer = self.serializer_class(data=request.DATA)
             if serializer.is_valid():
@@ -37,6 +49,7 @@ class ObtainAuthToken(APIView):
         else:
             # Here we call PSA to authenticate like we would if we used PSA on server side.
             # print 'calling PSA'
+            # print "psa"
             user = register_by_access_token(request, backend)
             # If user is active we get or create the REST token and send it back with user data
             if user and user.is_active:
@@ -61,15 +74,11 @@ def register_by_access_token(request, backend):
     
     # Real authentication takes place here
     user = request.backend.do_auth(access_token)
+
     return user
 
 def get_authorization_header(request):
     return request.META['HTTP_AUTHORIZATION']
-
-def save_auth_user(userProfile,authUser):
-    if userProfile.auth_user is None:
-        userProfile.auth_user=authUser
-        userProfile.save()
 
 
 class MenuViewSet(APIView):
@@ -114,8 +123,11 @@ class MessageViewSet(APIView):
 
     def post(self, request, format=None):
         Device = get_device_model()
-        rcvr_device = Device.objects.get(name='vedant12118@iiitd.ac.in')
-        rcvr_device.send_message('django test message',collapse_key='inform')
+        user=request.user
+        msg_str= user.email+": "+request.data.get('msg')
+        print msg_str
+        rcvr_device = Device.objects.get(name=request.data.get('to'))
+        rcvr_device.send_message(msg_str,collapse_key='inform')
         return HttpResponse(status=200)
 
 class LibraryViewSet(APIView):
@@ -133,5 +145,20 @@ class LibraryViewSet(APIView):
             print data
             return HttpResponse(data,content_type="application/json")
 
-              
+class LocationViewSet(APIView):
+
+    def get(self, request, format=None):
+        data=get_location()
+        kind=request.GET.get('population','')
+        data_dict=json.loads(data)
+        locations=data_dict['occupancy_information']
+
+        if(kind==''):
+            return HttpResponse(data,content_type="application/json")
+        elif(kind=='max'):    
+            max_location=get_max_ppl(locations)
+            return HttpResponse(json.dumps(max_location),content_type="application/json")
+        elif(kind=='min'):    
+            min_location=get_min_ppl(locations)
+            return HttpResponse(json.dumps(min_location),content_type="application/json")
 

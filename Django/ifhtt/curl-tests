@@ -1,6 +1,9 @@
 curl -H "Content-Type: application/json" -X POST -d '{"dev_id":1,"reg_id":"test"}' http://192.168.48.103:8000/gcm/v1/device/register/
 
-curl --header "Authorization: Token a39d46462ebfba905d0275a1054b99540afc5a60" -X POST http://192.168.1.3:8000/messages/
+curl --header "Authorization: Token a39d46462ebfba905d0275a1054b99540afc5a60" -H "Content-Type: application/json" -X POST -d '{"msg":"Fuck you gcm","to":"Shubham12101@iiitd.ac.in"}' -X POST http://192.168.48.103:8000/messages/
+
+curl --header "Authorization: Token a39d46462ebfba905d0275a1054b99540afc5a60" -X GET http://192.168.48.103:8000/users/
+curl --header "Authorization: Token a39d46462ebfba905d0275a1054b99540afc5a60" -X GET http://192.168.48.103:8000/location/
 
 curl -X GET "http://192.168.48.103:8000/menu/?time=1427525872013" > error.html
 
@@ -12,4 +15,4 @@ curl -X GET --header "Authorization: Token a39d46462ebfba905d0275a1054b99540afc5
 
 curl -X GET "http://192.168.48.103:8080/books/?issued_by=shubham12101@iiitd.ac.in" > error.html
 
-curl -X POST --header "Authorization: Token a39d46462ebfba905d0275a1054b99540afc5a60" -H "Content-Type: application/json" -X POST -d '{"username":"vedant12118@iiit"}' "http://192.168.48.103:8000/api-auth/google-oauth2/">error.html
+curl -X POST --header "Authorization: Token ya29.VgFlUmxUq1bgkWY6tD4o8jpSHIZvMQdIMXFFyQudgQIfdEiSH8es33LhH92ZLDk8VjIxEB9OOu4DZ6VDlkHT3iBa0klE6nMXxB0ZsDtpa7MugamA1W2eeI0Q08sdF4T1R3B9ZnOB4DEMGQ" -H "Content-Type: application/json" -X POST -d '{"username":"Shubham12101@iiitd.ac.in"}' "http://192.168.48.103:8000/api-auth/google-oauth2/">error.html

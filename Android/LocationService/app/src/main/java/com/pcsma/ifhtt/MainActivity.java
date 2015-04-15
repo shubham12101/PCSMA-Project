@@ -301,9 +301,9 @@ public class MainActivity extends ActionBarActivity
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(launch,false);
         editor.commit();
-        Intent intent = new Intent(this, HomeActivity.class);
-        startActivity(intent);
-        finish();
+//        Intent intent = new Intent(this, HomeActivity.class);
+//        startActivity(intent);
+//        finish();
     }
 //
 //    @Override
@@ -393,12 +393,11 @@ public class MainActivity extends ActionBarActivity
 
 
     private void sendRegistrationIdToIFHTTBackend() {
-        String email_id="vedant12118@iiitd.ac.in";
         final SharedPreferences prefs = getGCMPreferences(context);
         String registrationId = prefs.getString(IFHTT_REG_ID, "");
         String android_id = Settings.Secure.getString(this.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
-        (new GCMRegisterTask(MainActivity.this,registrationId,android_id,email_id,this)).execute();
+        (new GCMRegisterTask(MainActivity.this,registrationId,android_id,mEmail,this)).execute();
     }
 	
 	/**
