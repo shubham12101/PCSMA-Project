@@ -1,6 +1,5 @@
 package com.pcsma.ifhtt.mainApp.Methods;
 
-import android.util.Log;
 import com.pcsma.ifhtt.mainApp.Objects.LocationObject;
 import org.json.JSONArray;
 import org.json.JSONException;
