@@ -104,7 +104,7 @@ public class RecipeActivity extends ActionBarActivity implements OnLocationRecei
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                
+
             }
         });
     }
