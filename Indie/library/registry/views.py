@@ -20,6 +20,6 @@ class BookViewSet(APIView):
 			serializer = BookSerializer(self.queryset, many=True)
 		else:
 			print issued_by
-			serializer=BookSerializer(Book.objects.get(issued_by=issued_by))
+			serializer=BookSerializer(Book.objects.filter(issued_by=issued_by),many=True)
 		return Response(serializer.data)
 

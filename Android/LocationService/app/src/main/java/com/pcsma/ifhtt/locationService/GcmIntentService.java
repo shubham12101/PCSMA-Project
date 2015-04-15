@@ -50,7 +50,7 @@ public class GcmIntentService extends IntentService {
                     if(intent.getExtras().getString("collapse_key").equals("inform"))
                         sendNotification(intent.getExtras().getString("msg"));
                     else if(intent.getExtras().getString("collapse_key").equals("demo_location"))
-                        Log.v(TAG,intent.getExtras().getString("msg"));
+                        handleLocNotif(intent,extras);
                     else
                         handleLocNotif(intent,extras);
                 }
@@ -119,7 +119,7 @@ public class GcmIntentService extends IntentService {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
         .setSmallIcon(R.drawable.iiitd_logo)
-        .setContentTitle("NMS Location Update")
+        .setContentTitle("IFHTT Update")
         .setStyle(new NotificationCompat.BigTextStyle()
         .bigText(msg))
         .setVibrate(pat)

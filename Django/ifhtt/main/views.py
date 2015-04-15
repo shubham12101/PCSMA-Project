@@ -116,7 +116,10 @@ class CourseViewSet(APIView):
     	if(course_name==''):
         	serializer = CourseSerializer(self.queryset, many=True)
     	else:
-    		serializer=CourseSerializer(Course.objects.get(name=course_name))
+            try:
+    		  serializer=CourseSerializer(Course.objects.get(name=course_name))
+            except Course.DoesNotExist:
+                return HttpResponse(course_name+" not listed",status=404)
        	return Response(serializer.data)
 
 class MessageViewSet(APIView):
@@ -126,7 +129,13 @@ class MessageViewSet(APIView):
         user=request.user
         msg_str= user.email+": "+request.data.get('msg')
         # print msg_str
-        rcvr_device = Device.objects.get(name=request.data.get('to'))
+        try:
+            rcvr_device = Device.objects.get(name=request.data.get('to'))
+        except Device.DoesNotExist:
+            rcvr_device=None
+
+        if(rcvr_device is None):
+            return HttpResponse(request.data.get('to')+" not found",status=404)
         rcvr_device.send_message(msg_str,collapse_key='inform')
         return HttpResponse(status=200)
 
@@ -146,7 +155,7 @@ class LibraryViewSet(APIView):
         library_url="http://192.168.48.103:8080/"
         book_api="books/"
 
-        issued_by=request.GET.get('issued_by','')
+        issued_by=request.user.email
         if(issued_by==''):
             return HttpResponse(status=400)
         else:
