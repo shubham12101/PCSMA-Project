@@ -1,7 +1,9 @@
 package com.pcsma.ifhtt.mainApp;
 
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -12,14 +14,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+
+import com.pcsma.ifhtt.MainActivity;
 import com.pcsma.ifhtt.R;
+import com.pcsma.ifhtt.mainApp.Listeners.OnGCMRegisterListener;
 import com.pcsma.ifhtt.mainApp.Listeners.OnGetTaskListener;
+import com.pcsma.ifhtt.mainApp.Tasks.GCMRegisterTask;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class HomeActivity extends ActionBarActivity implements OnGetTaskListener{
+public class HomeActivity extends ActionBarActivity implements OnGetTaskListener,OnGCMRegisterListener{
 
     private static final String TAG = "HomeActivity";
+    public static final String IFHTT_REG_ID = "registration_id_ifhtt";
 
     Button silentButton;
     Button vibrateButton;
@@ -98,8 +106,34 @@ public class HomeActivity extends ActionBarActivity implements OnGetTaskListener
         if (id == R.id.action_settings) {
             return true;
         }
+        else if(id==R.id.action_gcm_register){
+            sendRegistrationIdToIFHTTBackend();
+            return true;
+        }
+        else if(id==R.id.action_recipes){
+            Intent intent=new Intent(HomeActivity.this,RecipeListActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void sendRegistrationIdToIFHTTBackend() {
+        final SharedPreferences prefs = getGCMPreferences(this);
+        String registrationId = prefs.getString(IFHTT_REG_ID, "");
+        String mEmail = prefs.getString("Email","");
+        String android_id = Settings.Secure.getString(this.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+        (new GCMRegisterTask(HomeActivity.this,registrationId,android_id,mEmail,this)).execute();
+    }
+
+    private SharedPreferences getGCMPreferences(Context context) {
+        // This sample app persists the registration ID in shared preferences, but
+        // how you store the regID in your app is up to you.
+        return getSharedPreferences(MainActivity.class.getSimpleName(),
+                Context.MODE_PRIVATE);
     }
 
     @Override
@@ -149,5 +183,10 @@ public class HomeActivity extends ActionBarActivity implements OnGetTaskListener
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(notifId,notifBuilder.build());
 
+    }
+
+    @Override
+    public void onTaskCompleted(String message) {
+        Log.v(TAG,"GCM Registered successfully");
     }
 }
