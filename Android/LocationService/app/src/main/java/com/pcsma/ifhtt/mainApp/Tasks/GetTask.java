@@ -52,8 +52,9 @@ public class GetTask extends AsyncTask<Void,Void,String> {
 
     @Override
     protected void onPostExecute(String msg) {
-        Log.i(TAG, msg);
-        listener.onTaskCompleted(msg, type);
+        Log.d(TAG, msg);
+        if(!(msg.isEmpty() || msg==null))
+            listener.onTaskCompleted(msg, type);
     }
 
     private String getAction(String URL, String paramKey, String paramValue){
@@ -84,8 +85,11 @@ public class GetTask extends AsyncTask<Void,Void,String> {
             HttpResponse response = httpClient.execute(httpGet);
             // write response to log
             Log.d(TAG,"Get Task: "+ response.getStatusLine().toString());
+            if (response.getStatusLine().getStatusCode() == 200)
+            {
+                return EntityUtils.toString(response.getEntity());
+            }
 //            Log.d(TAG, EntityUtils.toString(response.getEntity()));
-            return EntityUtils.toString(response.getEntity());
         } catch (ClientProtocolException | UnsupportedEncodingException e) {
             // Log exception
             e.printStackTrace();

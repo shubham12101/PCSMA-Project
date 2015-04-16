@@ -1,11 +1,7 @@
 package com.pcsma.ifhtt.mainApp;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.media.AudioManager;
-import com.pcsma.ifhtt.mainApp.Listeners.OnGetTaskListener;
-import android.preference.PreferenceManager;
-
 import com.pcsma.ifhtt.mainApp.Listeners.OnGetTaskListener;
 import com.pcsma.ifhtt.mainApp.Listeners.OnInformTaskListener;
 import com.pcsma.ifhtt.mainApp.Tasks.GetTask;
@@ -21,26 +17,25 @@ public class RecipeActions {
     private static final String COURSE_API_PARAM_KEY = "course_name";
     private static String COURSE_API_PARAM_VALUE = "";
     private static final String MENU_API_PARAM_KEY = "time";
-    private static String MENU_API_PARAM_VALUE;
+    private static String MENU_API_PARAM_VALUE = "";
     private static final String LIBRARY_API_PARAM_KEY = "";
     private static String LIBRARY_API_PARAM_VALUE="";
     private static final String POPULATION_API_PARAM_KEY = "population";
     private static String POPULATION_API_PARAM_VALUE="";
     private String authToken;
 
-    public RecipeActions(Context cnt)
+    public RecipeActions(Context cnt, String token)
     {
-        context = cnt;
-        final SharedPreferences appPreferences= PreferenceManager.getDefaultSharedPreferences(cnt);
-        authToken = appPreferences.getString("token","");
+        this.context = cnt;
+        this.authToken = token;
     }
 
     public void phoneVibrate()
     {
         AudioManager am;
-    am= (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-    am.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
-}
+        am= (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        am.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+    }
 
     public void phoneSilent()
     {
@@ -55,7 +50,7 @@ public class RecipeActions {
 //        getCourseURL.execute();
         COURSE_API_PARAM_VALUE=courseName;
         GetTask getCourseURL = new GetTask(context,Common.COURSES_API,COURSE_API_PARAM_KEY,
-                COURSE_API_PARAM_VALUE,onGetTaskListener,"course",authToken);
+                COURSE_API_PARAM_VALUE,onGetTaskListener,Common.ACTION_COURSE,authToken);
         getCourseURL.execute();
     }
 
@@ -65,21 +60,27 @@ public class RecipeActions {
 //        GetTask getCourseURL = new GetTask(context,Common.MENU_API,MENU_API_PARAM_KEY,MENU_API_PARAM_VALUE,onGetTaskListener,"menu");
 //        getCourseURL.execute();
         GetTask getMenuURL = new GetTask(context,Common.MENU_API,MENU_API_PARAM_KEY,
-                MENU_API_PARAM_VALUE,onGetTaskListener,"menu",authToken);
+                MENU_API_PARAM_VALUE,onGetTaskListener,Common.ACTION_MESS_MENU,authToken);
         getMenuURL.execute();
     }
 
     public void openLibraryNotif(OnGetTaskListener onGetTaskListener)
     {
         GetTask getLibraryURL = new GetTask(context,Common.LIBRARY_API,LIBRARY_API_PARAM_KEY,
-                LIBRARY_API_PARAM_VALUE,onGetTaskListener,"library",authToken);
+                LIBRARY_API_PARAM_VALUE,onGetTaskListener,Common.ACTION_LIBRARY,authToken);
         getLibraryURL.execute();
     }
 
     public void openPopulationNotif(OnGetTaskListener onGetTaskListener, String param)
     {
-        GetTask getPopulationURL = new GetTask(context,Common.LOCATION_API,POPULATION_API_PARAM_KEY,
-                POPULATION_API_PARAM_VALUE,onGetTaskListener,"population",authToken);
+        this.POPULATION_API_PARAM_VALUE = param;
+        GetTask getPopulationURL;
+        if(param.equals("max"))
+            getPopulationURL = new GetTask(context,Common.LOCATION_API,POPULATION_API_PARAM_KEY,
+                POPULATION_API_PARAM_VALUE,onGetTaskListener,Common.ACTION_MAX_POP,authToken);
+        else
+            getPopulationURL = new GetTask(context,Common.LOCATION_API,POPULATION_API_PARAM_KEY,
+                    POPULATION_API_PARAM_VALUE,onGetTaskListener,Common.ACTION_MIN_POP,authToken);
         getPopulationURL.execute();
     }
 

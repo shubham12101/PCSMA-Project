@@ -17,7 +17,9 @@ import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -34,6 +36,7 @@ public class InformTask extends AsyncTask<Void,String,String> {
         this.listener=listener;
         this.authToken=authToken;
         this.message=message;
+        Log.d(TAG,"email:"+email+" message"+message);
     }
 
     @Override
@@ -45,7 +48,7 @@ public class InformTask extends AsyncTask<Void,String,String> {
 
     @Override
     protected void onPostExecute(String msg) {
-        Log.i(TAG, msg);
+        Log.d(TAG, msg);
         listener.onInformTaskComplete(msg);
     }
 
@@ -53,7 +56,7 @@ public class InformTask extends AsyncTask<Void,String,String> {
         String msg="";
         HttpClient httpClient = new DefaultHttpClient();
         // replace with your url
-        HttpPost httpPost = new HttpPost(Common.USER_API);
+        HttpPost httpPost = new HttpPost(Common.MESSAGE_API);
         httpPost.setHeader("Authorization","Token "+authToken);
 
         JSONObject postObject=new JSONObject();
@@ -67,9 +70,18 @@ public class InformTask extends AsyncTask<Void,String,String> {
             httpPost.setEntity(se);
 
             HttpResponse response = httpClient.execute(httpPost);
+            BufferedReader rd = new BufferedReader(
+                        new InputStreamReader(response.getEntity().getContent()));
+
+                StringBuffer result = new StringBuffer();
+                String line = "";
+                while ((line = rd.readLine()) != null) {
+                    result.append(line);
+                }
+                Log.d(TAG, result.toString());
             // write response to log
 //            Log.d(TAG,"Post user info"+ response.getStatusLine().toString())
-            return "Post inform info"+ response.getStatusLine().toString();
+            return String.valueOf(response.getStatusLine().getStatusCode());
 //            Log.d(TAG, EntityUtils.toString(response.getEntity()));
         } catch (ClientProtocolException | UnsupportedEncodingException e) {
             // Log exception

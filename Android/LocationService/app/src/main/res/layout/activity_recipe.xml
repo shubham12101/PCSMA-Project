@@ -47,4 +47,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/editText_option2" android:layout_below="@+id/editText_option1" android:layout_centerHorizontal="true"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            android:id="@+id/button_save" android:layout_above="@+id/button_okay" android:layout_centerHorizontal="true"/>
 </RelativeLayout>

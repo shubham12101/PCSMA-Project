@@ -1,43 +1,53 @@
 package com.pcsma.ifhtt.mainApp;
 
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TimePicker;
+import android.widget.*;
 import com.pcsma.ifhtt.R;
+import com.pcsma.ifhtt.mainApp.Database.DbFunctions;
+import com.pcsma.ifhtt.mainApp.Listeners.OnGetTaskListener;
+import com.pcsma.ifhtt.mainApp.Listeners.OnInformTaskListener;
 import com.pcsma.ifhtt.mainApp.Listeners.OnLocationReceivedListener;
 import com.pcsma.ifhtt.mainApp.Methods.JSONParser;
 import com.pcsma.ifhtt.mainApp.Objects.LocationObject;
 import com.pcsma.ifhtt.mainApp.Tasks.GetLocationTask;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-public class RecipeActivity extends ActionBarActivity implements OnLocationReceivedListener {
-    String startTimeString,endTimeString;
+public class RecipeActivity extends ActionBarActivity implements OnLocationReceivedListener,OnGetTaskListener,
+        OnInformTaskListener
+{
+    String startTimeString,endTimeString,actionString;
     Button locationButton;
     Button startTimeButton;
-    Button endTimeButton,actionButton,okButton;
+    Button endTimeButton,actionButton,okButton,saveButton;
     GetLocationTask getLocationTask;
     List<LocationObject> locationObjectList;
     TimePickerDialog timePickerDialogStart;
     TimePickerDialog timePickerDialogEnd;
     EditText option1EditText, option2EditText;
     private static String TAG;
-    int hourStart, minStart, hourEnd, minEnd;
+    int hourStart, minStart, hourEnd, minEnd, choice;
     Calendar calendarStart,calendarEnd;
     SimpleDateFormat simpleDateFormatStart,simpleDateFormatEnd;
     ActionObject actionObject;
@@ -53,9 +63,9 @@ public class RecipeActivity extends ActionBarActivity implements OnLocationRecei
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe);
-        recipeActions = new RecipeActions(RecipeActivity.this);
         final SharedPreferences appPreferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         String token = appPreferences.getString("token",null);
+        recipeActions = new RecipeActions(RecipeActivity.this,token);
         if(token!=null)
         {
             getLocationTask = new GetLocationTask(token,RecipeActivity.this);
@@ -70,6 +80,7 @@ public class RecipeActivity extends ActionBarActivity implements OnLocationRecei
         startTimeButton = (Button) findViewById(R.id.button_time_start);
         endTimeButton = (Button) findViewById(R.id.button_time_end);
         actionButton = (Button) findViewById(R.id.button_set_action);
+        saveButton = (Button) findViewById(R.id.button_save);
         okButton = (Button) findViewById(R.id.button_okay);
         option1EditText = (EditText) findViewById(R.id.editText_option1);
         option2EditText = (EditText) findViewById(R.id.editText_option2);
@@ -101,12 +112,33 @@ public class RecipeActivity extends ActionBarActivity implements OnLocationRecei
                 makeActionDialog();
             }
         });
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                insertActionObject();
+            }
+        });
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                makeActionObject(choice);
             }
         });
+    }
+
+    private void insertActionObject()
+    {
+        if(choice==2)
+            actionObject = new ActionObject(recipeLocation,startTimeString,endTimeString,actionString,
+                    option1EditText.toString(),"");
+        else if(choice==7)
+            actionObject = new ActionObject(recipeLocation,startTimeString,endTimeString,actionString,
+                    option1EditText.toString(),option2EditText.toString());
+        else
+            actionObject = new ActionObject(recipeLocation,startTimeString,endTimeString,actionString,
+                    "","");
+        DbFunctions.insert(RecipeActivity.this,actionObject);
+
     }
 
     private TimePickerDialog.OnTimeSetListener timeSetListenerStart = new TimePickerDialog.OnTimeSetListener() {
@@ -180,6 +212,7 @@ public class RecipeActivity extends ActionBarActivity implements OnLocationRecei
         builder.setAdapter(arrayAdapter,new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                choice = which;
                 if(which==2)
                 {
                     option1EditText.setVisibility(View.VISIBLE);
@@ -210,16 +243,45 @@ public class RecipeActivity extends ActionBarActivity implements OnLocationRecei
         {
             case 0:
                 recipeActions.phoneSilent();
+                actionString=Common.ACTION_SILENT;
                 break;
             case 1:
                 recipeActions.phoneVibrate();
+                actionString=Common.ACTION_VIBRATE;
+                break;
+            case 2:
+                recipeActions.openCourseWebsite(RecipeActivity.this, option1EditText.getText().toString());
+                actionString=Common.ACTION_COURSE;
+                break;
+            case 3:
+                recipeActions.openMenuNotif(RecipeActivity.this);
+                actionString = Common.ACTION_MESS_MENU;
+                break;
+            case 4:
+                recipeActions.openLibraryNotif(RecipeActivity.this);
+                actionString=Common.ACTION_LIBRARY;
+                break;
+            case 5:
+                recipeActions.openPopulationNotif(RecipeActivity.this,"max");
+                actionString=Common.ACTION_MAX_POP;
+                break;
+            case 6:
+                recipeActions.openPopulationNotif(RecipeActivity.this,"min");
+                actionString=Common.ACTION_MIN_POP;
+                break;
+            case 7:
+                recipeActions.postInformNotif(RecipeActivity.this,option1EditText.getText().toString(),
+                        option2EditText.getText().toString());
+                actionString=Common.ACTION_MESSAGE;
+                break;
+
         }
     }
 
     public void makeListDialog(List<LocationObject> locList)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        final ArrayAdapter<LocationObject> arrayAdapter = new ArrayAdapter<LocationObject>(
+        final ArrayAdapter<LocationObject> arrayAdapter = new ArrayAdapter<>(
                 RecipeActivity.this,android.R.layout.select_dialog_singlechoice);
         for(int i=0; i<locationObjectList.size(); ++i)
         {
@@ -234,5 +296,128 @@ public class RecipeActivity extends ActionBarActivity implements OnLocationRecei
         });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    @Override
+    public void onTaskCompleted(String message, String type) {
+        if(type.equals(Common.ACTION_COURSE))
+        {
+            Log.d(TAG,message);
+            try {
+                JSONObject jsonObject = new JSONObject(message);
+                String websiteURL = jsonObject.getString("website");
+                Log.d(TAG, websiteURL);
+                openBrowser(websiteURL);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        else if (type.equals(Common.ACTION_MESS_MENU))
+        {
+            Log.d(TAG,message);
+            try {
+                JSONObject jsonObject = new JSONObject(message);
+                String menuItems = jsonObject.getString("items");
+                String timeSlot = jsonObject.getString("time_slot");
+                Log.d(TAG, menuItems);
+                makeMenuNotification(timeSlot, menuItems);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        else if(type.equals(Common.ACTION_MAX_POP))
+        {
+            Log.d(TAG,message);
+            try{
+                JSONObject jsonObject = new JSONObject(message);
+                String building = jsonObject.getString("building");
+                String floor = jsonObject.getString("floor");
+                String wing = jsonObject.getString("wing");
+                String room = jsonObject.getString("room");
+                makePopulationNotification(building,floor,wing,room,"Most");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        else if(type.equals(Common.ACTION_MIN_POP))
+        {
+            Log.d(TAG,message);
+            try{
+                JSONObject jsonObject = new JSONObject(message);
+                String building = jsonObject.getString("building");
+                String floor = jsonObject.getString("floor");
+                String wing = jsonObject.getString("wing");
+                String room = jsonObject.getString("room");
+                makePopulationNotification(building,floor,wing,room,"Least");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        else if(type.equals(Common.ACTION_LIBRARY))
+        {
+            try{
+                JSONArray jsonArray = new JSONArray(message);
+                StringBuilder booksName = new StringBuilder();
+                for(int i=0; i<jsonArray.length();++i)
+                {
+                    JSONObject json = jsonArray.getJSONObject(i);
+                    booksName.append(json.getString("title"));
+                    booksName.append(" ");
+                }
+                makeLibraryNotification(booksName.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void openBrowser(String url)
+    {
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(url));
+        startActivity(i);
+    }
+
+    public void makeLibraryNotification(String books)
+    {
+        long[] pattern = { 0, 200, -1 };
+//        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.iiitd_logo)
+                .setContentTitle("Issued Books")
+                .setContentText(books).setVibrate(pattern).setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
+        int notifId = 002;
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.notify(notifId,notifBuilder.build());
+    }
+
+    public void makePopulationNotification(String b, String f, String w, String r, String type)
+    {
+        long[] pattern = { 0, 200, -1 };
+//        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.iiitd_logo)
+                .setContentTitle(type+" Populated Place")
+                .setContentText(b + " Building, Floor " + f + ", Wing " + w + ", Room " + r).setVibrate(pattern).setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
+        int notifId = 002;
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.notify(notifId,notifBuilder.build());
+    }
+
+    public void makeMenuNotification(String timeSlot,String menuItems)
+    {
+        long[] pattern = { 0, 200, -1 };
+//        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.iiitd_logo)
+                .setContentTitle("Mess Menu for "+timeSlot).setContentText(menuItems).setVibrate(pattern).setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
+        int notifId = 001;
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.notify(notifId,notifBuilder.build());
+    }
+
+    @Override
+    public void onInformTaskComplete(String msg) {
+        if(msg.equals("200"))
+            Toast.makeText(RecipeActivity.this,"Message Pushed Successfully",Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(RecipeActivity.this,"User not found",Toast.LENGTH_LONG).show();
     }
 }

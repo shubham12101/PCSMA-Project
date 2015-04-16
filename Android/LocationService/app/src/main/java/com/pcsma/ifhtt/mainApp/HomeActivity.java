@@ -28,7 +28,7 @@ public class HomeActivity extends ActionBarActivity implements OnGetTaskListener
     Button recipeButton;
 
 
-    private RecipeActions recipeActions = new RecipeActions(HomeActivity.this);
+//    private RecipeActions recipeActions = new RecipeActions(HomeActivity.this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,28 +44,28 @@ public class HomeActivity extends ActionBarActivity implements OnGetTaskListener
         silentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                recipeActions.phoneSilent();
+//                recipeActions.phoneSilent();
             }
         });
 
         vibrateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                recipeActions.phoneVibrate();
+//                recipeActions.phoneVibrate();
             }
         });
 
         courseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                recipeActions.openCourseWebsite(HomeActivity.this);
+//                recipeActions.openCourseWebsite(HomeActivity.this);
             }
         });
 
         menuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                recipeActions.openMenuNotif(HomeActivity.this);
+//                recipeActions.openMenuNotif(HomeActivity.this);
 //                makeNotification("Demo");
             }
         });

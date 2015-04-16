@@ -1,5 +1,6 @@
 package com.pcsma.ifhtt.mainApp.Methods;
 
+import android.util.Log;
 import com.pcsma.ifhtt.mainApp.Objects.LocationObject;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,6 +33,7 @@ public class JSONParser {
             for(int i=0; i<jsonArray.length(); ++i)
             {
                 JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                Log.d(TAG,jsonObject1.toString());
                 String building = jsonObject1.getString("building");
                 String wing = jsonObject1.getString("wing");
                 String floor = jsonObject1.getString("floor");
@@ -39,10 +41,10 @@ public class JSONParser {
                 if(!(building.isEmpty() || floor.isEmpty()))
                 {
                     LocationObject loc = new LocationObject();
-                    loc.setBuilding(building+" Building");
-                    loc.setFloor("Floor "+floor);
-                    loc.setRoom("Room "+room);
-                    loc.setWing("Wing "+wing);
+                    loc.setBuilding(building + " Building");
+                    loc.setFloor("Floor " + floor);
+                    loc.setRoom("Room " + room);
+                    loc.setWing("Wing " + wing);
                     if(!(locationObjectList.contains(loc)))
                         locationObjectList.add(loc);
                 }
