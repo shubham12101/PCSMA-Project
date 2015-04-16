@@ -415,6 +415,7 @@ public class MainActivity extends ActionBarActivity
 	    SharedPreferences.Editor editor = prefs.edit();
 	    editor.putString(REG_ID, regId);
 	    editor.putInt(PROPERTY_APP_VERSION, appVersion);
+        editor.putString("Email",mEmail);
 	    editor.commit();
 	}
 	

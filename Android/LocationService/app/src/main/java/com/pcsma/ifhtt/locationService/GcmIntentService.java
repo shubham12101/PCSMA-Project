@@ -15,6 +15,8 @@ import android.widget.Toast;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.pcsma.ifhtt.MainActivity;
 import com.pcsma.ifhtt.R;
+import com.pcsma.ifhtt.mainApp.Database.DbFunctions;
+import com.pcsma.ifhtt.mainApp.Objects.LocationObject;
 
 public class GcmIntentService extends IntentService {
 	 DBAdapter db;
@@ -45,12 +47,12 @@ public class GcmIntentService extends IntentService {
                     MESSAGE_TYPE_MESSAGE.equals(messageType)) {
 
                 if(intent.getExtras().getString("collapse_key")!=null){
-                    Log.v(TAG,"GCM received "+intent.getExtras().getString("msg")
-                            +" "+intent.getExtras().getString("collapse_key"));
+                    Log.v(TAG, "GCM received " + intent.getExtras().getString("msg")
+                            + " " + intent.getExtras().getString("collapse_key"));
                     if(intent.getExtras().getString("collapse_key").equals("inform"))
                         sendNotification(intent.getExtras().getString("msg"));
                     else if(intent.getExtras().getString("collapse_key").equals("demo_location"))
-                        Log.v(TAG,intent.getExtras().getString("msg"));
+                        handleLocNotif(intent,extras);
                     else
                         handleLocNotif(intent,extras);
                 }
@@ -98,6 +100,7 @@ public class GcmIntentService extends IntentService {
         sendNotification("Location Changed: New Location is " + intent.getExtras().getString("building")+ " Building " + myfloor + " Floor " + rest);
         ShowToastInIntentService("Location Changed");
 
+        checkLocation(intent);
 
         db = new DBAdapter(this);
 
@@ -106,6 +109,16 @@ public class GcmIntentService extends IntentService {
         db.close();
 
         Log.i(TAG, "Received: " + extras.toString());
+    }
+
+    private void checkLocation(Intent intent){
+        LocationObject loc=new LocationObject();
+        loc.setBuilding(intent.getExtras().getString("building")+" Building");
+        loc.setBuilding("Floor "+intent.getExtras().getString("floor"));
+        loc.setRoom("Room "+intent.getExtras().getString("room"));
+        loc.setWing("Wing "+intent.getExtras().getString("wing"));
+
+        DbFunctions.getActions(getApplicationContext(),loc.toString());
     }
     
     private void sendNotification(String msg) {
@@ -119,7 +132,7 @@ public class GcmIntentService extends IntentService {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
         .setSmallIcon(R.drawable.iiitd_logo)
-        .setContentTitle("NMS Location Update")
+        .setContentTitle("IFHTT Update")
         .setStyle(new NotificationCompat.BigTextStyle()
         .bigText(msg))
         .setVibrate(pat)

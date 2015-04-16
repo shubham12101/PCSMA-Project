@@ -6,4 +6,12 @@
           android:title="@string/action_settings"
           android:orderInCategory="100"
           app:showAsAction="never"/>
+    <item android:id="@+id/action_gcm_register"
+        android:title="@string/action_gcm_register"
+        android:orderInCategory="101"
+        app:showAsAction="never"/>
+    <item android:id="@+id/action_recipes"
+        android:title="@string/action_recipes"
+        android:orderInCategory="102"
+        app:showAsAction="never"/>
 </menu>
