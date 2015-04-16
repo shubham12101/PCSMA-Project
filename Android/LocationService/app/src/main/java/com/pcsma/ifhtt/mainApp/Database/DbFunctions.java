@@ -4,7 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-
+import android.util.Log;
 import com.pcsma.ifhtt.mainApp.ActionObject;
 
 import java.text.ParseException;
@@ -15,6 +15,8 @@ import java.util.ArrayList;
  * Created by vedantdasswain on 15/04/15.
  */
 public class DbFunctions {
+
+    public static String TAG = "DbFunctions";
 
     public static long insert(Context context, ActionObject ao) {
         // Gets the data repository in write mode
@@ -65,6 +67,7 @@ public class DbFunctions {
     }
 
     public static ArrayList<ActionObject> getActions(Context context,String location){
+        Log.d(TAG,"entered");
         ArrayList<ActionObject> actions=new ArrayList<ActionObject>();
 
         DbHelper mDbHelper = new DbHelper(context);
@@ -74,24 +77,51 @@ public class DbFunctions {
         SimpleDateFormat sdf=new SimpleDateFormat("HH:mm");
         String currTimeStr=sdf.format(currTime).toString();
 
-        String query = "SELECT * FROM " + DatabaseContract.RecipeEntry.TABLE_NAME
-                +" WHERE "+DatabaseContract.RecipeEntry.LOCATION+" = "+location;
+//        String query1 = "SELECT * FROM " + DatabaseContract.RecipeEntry.TABLE_NAME;
+//
+//        Cursor c1 = db.rawQuery(query1,null);
+//
+//        if (c1 != null && c1.moveToFirst()) {
+//            Log.d(TAG,"entered if ");
+//            while (c1.isAfterLast() == false) {
+//                Log.d(TAG,"in while");
+//                Log.d(TAG,c1.getString(1)+ c1.getString(2)+ c1.getString(3)+
+//                        c1.getString(4)+ c1.getString(5)+ c1.getString(6));
+//
+//                c1.moveToNext();
+//            }
+//        }
 
-        Cursor c = db.rawQuery(
-                query, null);
+
+        String query = "SELECT * FROM " + DatabaseContract.RecipeEntry.TABLE_NAME
+                +" WHERE "+DatabaseContract.RecipeEntry.LOCATION+" = "+"'"+location+"'";
+        Log.d(TAG,"query:"+query);
+
+        Cursor c = db.rawQuery(query, null);
 
         if (c != null && c.moveToFirst()) {
+            Log.d(TAG,"entered if ");
             while (c.isAfterLast() == false) {
+                Log.d(TAG,"in while");
                 ActionObject ao = new ActionObject(c.getString(1), c.getString(2), c.getString(3),
                         c.getString(4), c.getString(5), c.getString(6));
+
+                Log.d(TAG,c.getInt(0)+c.getString(1)+ c.getString(2)+ c.getString(3)+
+                        c.getString(4)+ c.getString(5)+ c.getString(6));
+
 
                 try {
                     long currHourMin=sdf.parse(currTimeStr).getTime();
                     long startTime=sdf.parse(ao.getStartTime()).getTime();
-                    long endTime=sdf.parse(ao.getStartTime()).getTime();
+                    long endTime=sdf.parse(ao.getEndTime()).getTime();
+                    Log.d(TAG,ao.getStartTime()+" "+ao.getEndTime());
 
-                    if(currHourMin>=startTime && currHourMin<=endTime)
+                    if(currHourMin>=startTime && currHourMin<=endTime) {
                         actions.add(ao);
+                        Log.d(TAG,"added action object");
+                    }else {
+                        Log.d(TAG,currHourMin+" "+startTime+" "+endTime);
+                    }
 
                 } catch (ParseException e) {
                     e.printStackTrace();

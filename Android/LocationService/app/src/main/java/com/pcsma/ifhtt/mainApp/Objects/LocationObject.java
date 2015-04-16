@@ -46,7 +46,7 @@ public class LocationObject {
 
     @Override
     public String toString() {
-        return (this.getBuilding()+" "+this.getWing()+" "+this.getFloor()+" "+this.getRoom());
+        return (this.getBuilding()+" "+this.getFloor()+" "+this.getWing()+" "+this.getRoom());
     }
 
     @Override

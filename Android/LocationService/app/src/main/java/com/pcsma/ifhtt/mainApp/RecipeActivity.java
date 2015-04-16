@@ -128,12 +128,19 @@ public class RecipeActivity extends ActionBarActivity implements OnLocationRecei
 
     private void insertActionObject()
     {
+        Log.d(TAG,"actionString:"+actionString);
         if(choice==2)
             actionObject = new ActionObject(recipeLocation,startTimeString,endTimeString,actionString,
-                    option1EditText.toString(),"");
+                    option1EditText.getText().toString(),"");
         else if(choice==7)
             actionObject = new ActionObject(recipeLocation,startTimeString,endTimeString,actionString,
-                    option1EditText.toString(),option2EditText.toString());
+                    option1EditText.getText().toString(),option2EditText.getText().toString());
+        else if(choice==5)
+            actionObject = new ActionObject(recipeLocation,startTimeString,endTimeString,actionString,
+                    "max","");
+        else if(choice==6)
+            actionObject = new ActionObject(recipeLocation,startTimeString,endTimeString,actionString,
+                    "min","");
         else
             actionObject = new ActionObject(recipeLocation,startTimeString,endTimeString,actionString,
                     "","");
@@ -147,7 +154,7 @@ public class RecipeActivity extends ActionBarActivity implements OnLocationRecei
             hourStart = hourOfDay;
             minStart = minute;
             Log.d(TAG, hourStart + " " + minStart);
-            calendarStart.set(Calendar.HOUR, hourStart);
+            calendarStart.set(Calendar.HOUR_OF_DAY, hourStart);
             calendarStart.set(Calendar.MINUTE,minStart);
             simpleDateFormatStart = new SimpleDateFormat("HH:mm");
             startTimeString = simpleDateFormatStart.format(calendarStart.getTimeInMillis()).toString();
@@ -160,7 +167,7 @@ public class RecipeActivity extends ActionBarActivity implements OnLocationRecei
             hourEnd = hourOfDay;
             minEnd = minute;
             Log.d(TAG,hourEnd+" "+minEnd);
-            calendarEnd.set(Calendar.HOUR,hourEnd);
+            calendarEnd.set(Calendar.HOUR_OF_DAY,hourEnd);
             calendarEnd.set(Calendar.MINUTE,minEnd);
             simpleDateFormatEnd = new SimpleDateFormat("HH:mm");
             endTimeString = simpleDateFormatEnd.format(calendarEnd.getTimeInMillis()).toString();
@@ -230,10 +237,42 @@ public class RecipeActivity extends ActionBarActivity implements OnLocationRecei
                     option1EditText.setVisibility(View.GONE);
                     option2EditText.setVisibility(View.GONE);
                 }
+                setActionString(choice);
             }
         });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    public void setActionString(int n)
+    {
+        switch (n) {
+            case 0:
+                actionString = Common.ACTION_SILENT;
+                break;
+            case 1:
+                actionString = Common.ACTION_VIBRATE;
+                break;
+            case 2:
+                actionString = Common.ACTION_COURSE;
+                break;
+            case 3:
+                actionString = Common.ACTION_MESS_MENU;
+                break;
+            case 4:
+                actionString = Common.ACTION_LIBRARY;
+                break;
+            case 5:
+                actionString = Common.ACTION_MAX_POP;
+                break;
+            case 6:
+                actionString = Common.ACTION_MIN_POP;
+                break;
+            case 7:
+                actionString = Common.ACTION_MESSAGE;
+                break;
+
+        }
     }
 
     public void makeActionObject(int n)
